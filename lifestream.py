@@ -5,7 +5,6 @@ from private_settings import DATEBASE
 
 
 def get_status_tv_users_utm():
-
     con = psycopg2.connect(
         'host={host} port={port} dbname={db} user={user} password={passwd}'.format(
             **DATEBASE
@@ -26,12 +25,13 @@ def get_status_tv_users_utm():
     '''
     cur.execute(sql)
     users_status = cur.fetchall()
-    UserStatistic = namedtuple(
-        'UserStatistic',
+    UserStatus = namedtuple(
+        'UserStatus',
         ['login', 'full_name', 'balance', 'block_type', 'start_date',
          'expire_date', 'is_deleted'],
-        verbose=True)
-    users_status = list(map(UserStatistic._make, users_status))
+        verbose=True
+    )
+    users_status = list(map(UserStatus._make, users_status))
     return users_status
 
 
