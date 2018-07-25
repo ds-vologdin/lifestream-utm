@@ -1,7 +1,9 @@
 import psycopg2
 from collections import namedtuple
+import requests
+import json
 
-from private_settings import DATEBASE
+from private_settings import DATEBASE, URL_LIFESTREAM
 
 
 def get_status_tv_users_utm():
@@ -31,11 +33,23 @@ def get_status_tv_users_utm():
          'expire_date', 'is_deleted'],
         verbose=True
     )
-    users_status = list(map(UserStatus._make, users_status))
-    return users_status
+    return list(map(UserStatus._make, users_status))
 
 
-def get_status_tv_users_lifestream(): ...
+def get_status_tv_users_lifestream():
+    accounts_json = requests.get('{}/v2/accounts?page_size=100&page=0'.format(
+        URL_LIFESTREAM
+    ))
+    accounts_request = json.loads(accounts_json.text)
+    accounts = accounts_request['accounts']
+    for i in range(1, accounts_request['pagination']['pages']):
+        accounts_json_page = requests.get(
+            '{}/v2/accounts?page_size=100&page={}'.format(
+                URL_LIFESTREAM, i
+            )
+        )
+        accounts += json.loads(accounts_json_page.text)['accounts']
+    return accounts
 
 
 def find_change_status_to_lifestream(utm_status_users, lifestream_status_user):
@@ -48,9 +62,11 @@ def apply_change_status_lifestream(status_change): ...
 def main():
     utm_status_users = get_status_tv_users_utm()
     print(utm_status_users)
-    lifestream_status_user = get_status_tv_users_lifestream()
+    lifestream_status_users = get_status_tv_users_lifestream()
+    for user in lifestream_status_users:
+        print(user)
     status_change = find_change_status_to_lifestream(
-        utm_status_users, lifestream_status_user
+        utm_status_users, lifestream_status_users
     )
     apply_change_status_lifestream(status_change)
 
