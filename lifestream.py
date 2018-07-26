@@ -8,11 +8,7 @@ from private_settings import DATEBASE, URL_LIFESTREAM
 
 
 def get_status_tv_users_utm():
-    con = psycopg2.connect(
-        'host={host} port={port} dbname={db} user={user} password={passwd}'.format(
-            **DATEBASE
-        )
-    )
+    con = psycopg2.connect(**DATEBASE)
     cur = con.cursor()
 
     # Ищем пользователей с тарифными связками:
@@ -123,11 +119,7 @@ def set_id_lifestream_to_utm_user(cur, utm_userid, id_lifestream):
 
 
 def set_id_lifestream_to_utm(utm_status_users, lifestream_status_users):
-    con = psycopg2.connect(
-        'host={host} port={port} dbname={db} user={user} password={passwd}'.format(
-            **DATEBASE
-        )
-    )
+    con = psycopg2.connect(**DATEBASE)
     cur = con.cursor()
 
     for user_lifestream in lifestream_status_users:
