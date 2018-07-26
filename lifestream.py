@@ -14,25 +14,13 @@ def get_status_tv_users_utm():
         )
     )
     cur = con.cursor()
-    # # группа с id 5003 - абоненты с услугой ТВ
-    # sql = '''SELECT t5.login, t5.full_name, t1.balance, t2.block_type,
-    # t2.start_date, t2.expire_date, t2.is_deleted
-    # FROM accounts t1
-    # LEFT OUTER JOIN blocks_info t2 ON (t1.id = t2.account_id AND
-    # t2.start_date = (SELECT MAX(start_date)
-    #                  FROM blocks_info WHERE account_id = t1.id))
-    # LEFT JOIN users_accounts t3 ON t1.id = t3.account_id
-    # LEFT JOIN users_groups_link t4 ON t3.uid = t4.user_id
-    # LEFT JOIN users t5 ON t5.id = t3.uid
-    # WHERE t4.group_id = 5003;
-    # '''
 
     # Ищем пользователей с тарифными связками:
     # 1303, 1309, 1310, 1515, 1516, 1517, 1518
     sql = '''SELECT DISTINCT t5.login, t5.full_name, t1.balance, t2.block_type,
-    t2.start_date, t2.expire_date, t2.is_deleted, t5.id
+    t2.start_date, t2.expire_date, t2.is_deleted, t5.id, t9.value
     FROM accounts t1
-    LEFT OUTER JOIN blocks_info t2 ON (t1.id = t2.account_id AND
+    LEFT JOIN blocks_info t2 ON (t1.id = t2.account_id AND
     t2.id = (SELECT MAX(id)
              FROM blocks_info WHERE account_id = t1.id))
     LEFT JOIN users_accounts t3 ON t1.id = t3.account_id
@@ -40,16 +28,18 @@ def get_status_tv_users_utm():
     LEFT JOIN service_links t6 ON t6.user_id = t5.id
     LEFT JOIN tariffs_services_link t7 ON t6.service_id = t7.service_id
     LEFT JOIN tariffs t8 ON t8.id = t7.tariff_id
+    LEFT JOIN user_additional_params t9 ON t9.userid = t5.id
     WHERE t7.tariff_id IN (1515, 1516, 1517, 1518, 1594, 1662) AND
     t6.is_deleted = 0
     '''
     cur.execute(sql)
+    logging.debug(cur.query)
     users_status = cur.fetchall()
     UserStatus = namedtuple(
         'UserStatus',
         ['login', 'full_name', 'balance', 'block_type', 'start_date',
-         'expire_date', 'is_deleted', 'user_id'],
-        verbose=True
+         'expire_date', 'is_deleted', 'user_id', 'lifestream_id'],
+        verbose=False
     )
     cur.close()
     con.close()
@@ -100,13 +90,36 @@ def update_parameter_id_lifestream_into_utm(cur, utm_userid, id_lifestream):
     logging.info(cur.query)
 
 
-def insert_parameter_id_lifestream_into_utm(cur, utm_userid, id_lifestream):
+def insert_parameter_id_lifestream_into_utm(
+    cur, utm_parameter_id, id_lifestream
+):
     # paramid = 3 - параметр c информацией об id lifestream
     sql = '''INSERT INTO user_additional_params(
         paramid, userid, value)
         VALUES (3, %s, %s);'''
-    cur.execute(sql, (utm_userid, id_lifestream))
+    cur.execute(sql, (utm_parameter_id, id_lifestream))
     logging.info(cur.query)
+
+
+def set_id_lifestream_to_utm_user(cur, utm_userid, id_lifestream):
+    lifestream_in_utm = fetch_parameter_id_lifestream_from_utm(
+        cur, utm_userid
+    )
+    if not lifestream_in_utm:
+        insert_parameter_id_lifestream_into_utm(
+            cur, utm_userid, id_lifestream
+        )
+        return
+
+    if lifestream_in_utm[0] != id_lifestream:
+        logging.error(
+            'Не совпадают id lifestream с данными в utm: {} - {}'.format(
+                lifestream_in_utm[0], id_lifestream
+            )
+        )
+        update_parameter_id_lifestream_into_utm(
+            cur, utm_userid, id_lifestream
+        )
 
 
 def set_id_lifestream_to_utm(utm_status_users, lifestream_status_users):
@@ -135,25 +148,7 @@ def set_id_lifestream_to_utm(utm_status_users, lifestream_status_users):
             continue
 
         found_user_utm = found_users_utm.pop()
-
-        lifestream_in_utm = fetch_parameter_id_lifestream_from_utm(
-            cur, found_user_utm[1]
-        )
-
-        if lifestream_in_utm:
-            if lifestream_in_utm[0] != user_lifestream['id']:
-                logging.error(
-                    'Не совпадают id lifestream с данными в utm: {} - {}'.format(
-                        lifestream_in_utm[0], user_lifestream['id']
-                    )
-                )
-                update_parameter_id_lifestream_into_utm(
-                    cur, lifestream_in_utm[1], user_lifestream['id']
-                )
-
-            continue
-
-        insert_parameter_id_lifestream_into_utm(
+        set_id_lifestream_to_utm_user(
             cur, found_user_utm[1], user_lifestream['id']
         )
     con.commit()
@@ -173,8 +168,8 @@ def main():
     utm_status_users = get_status_tv_users_utm()
     # print(utm_status_users)
     lifestream_status_users = get_status_tv_users_lifestream()
-    for user in lifestream_status_users:
-        print(user)
+    # for user in lifestream_status_users:
+    #     print(user)
     set_id_lifestream_to_utm(utm_status_users, lifestream_status_users)
     status_change = find_change_status_to_lifestream(
         utm_status_users, lifestream_status_users
