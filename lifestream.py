@@ -258,7 +258,9 @@ def main():
         utm_status_users, lifestream_status_users
     )
     for user in status_change:
-        print('{0[user].login} {0[user].full_name}: utm {0[status_utm]} lifestream {0[status_lifestrem]}'.format(user))
+        logging.info(
+            '{0[user].login} {0[user].full_name}: utm|lifestream {0[status_utm]}|{0[status_lifestrem]}'.format(user)
+        )
     apply_change_status_lifestream(status_change)
 
 
