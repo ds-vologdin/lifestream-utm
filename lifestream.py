@@ -14,7 +14,14 @@ def get_status_tv_users_utm():
     # Ищем пользователей с тарифными связками:
     # 1303, 1309, 1310, 1515, 1516, 1517, 1518
     sql = '''SELECT DISTINCT t5.login, t5.full_name, t1.balance, t2.block_type,
-    t2.start_date, t2.expire_date, t2.is_deleted, t5.id, t9.value
+    t2.start_date, t2.expire_date, t2.is_deleted, t5.id, t9.value,
+    array(
+        SELECT tariff_id
+        FROM tariffs tt1
+        LEFT JOIN tariffs_services_link tt2 ON tt1.id = tt2.tariff_id
+        LEFT JOIN service_links tt3 ON tt3.service_id = tt2.service_id
+        WHERE tt3.user_id = t5.id
+    )
     FROM accounts t1
     LEFT JOIN blocks_info t2 ON (t1.id = t2.account_id AND
     t2.id = (SELECT MAX(id)
@@ -24,7 +31,7 @@ def get_status_tv_users_utm():
     LEFT JOIN service_links t6 ON t6.user_id = t5.id
     LEFT JOIN tariffs_services_link t7 ON t6.service_id = t7.service_id
     LEFT JOIN tariffs t8 ON t8.id = t7.tariff_id
-    LEFT JOIN user_additional_params t9 ON t9.userid = t5.id
+    LEFT JOIN user_additional_params t9 ON t9.userid = t5.id AND t9.paramid = 3
     WHERE t7.tariff_id IN (1515, 1516, 1517, 1518, 1594, 1662) AND
     t6.is_deleted = 0
     '''
@@ -34,7 +41,7 @@ def get_status_tv_users_utm():
     UserStatus = namedtuple(
         'UserStatus',
         ['login', 'full_name', 'balance', 'block_type', 'start_date',
-         'expire_date', 'is_deleted', 'user_id', 'lifestream_id'],
+         'expire_date', 'is_deleted', 'user_id', 'lifestream_id', 'tarifs_id'],
         verbose=False
     )
     cur.close()
