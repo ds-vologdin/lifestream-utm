@@ -72,10 +72,9 @@ def find_users_in_utm(user_lifestream, utm_status_users):
     found_users_utm = set()
     for utm_user in utm_status_users:
         # Сравниваем ФИО на полное соответствие
-        if user_lifestream['info']['fio'] == utm_user.full_name:
-            found_users_utm.add((utm_user.login, utm_user.user_id))
         # часть логинов в lifestrem вида gtsXXXXX, где XXXXX - логин в utm
-        if user_lifestream['username'][3:] == utm_user.login:
+        if any((user_lifestream['info']['fio'] == utm_user.full_name,
+                user_lifestream['username'][3:] == utm_user.login)):
             found_users_utm.add((utm_user.login, utm_user.user_id))
     return found_users_utm
 
