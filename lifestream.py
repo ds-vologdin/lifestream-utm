@@ -3,8 +3,10 @@ from collections import namedtuple
 import requests
 import json
 import logging
+from datetime import datetime
 
-from private_settings import DATEBASE, URL_LIFESTREAM
+from private_settings import DATEBASE, URL_LIFESTREAM, URL_LIFESTREAM_TEST
+from utm_tariffs import utm_tariffs_lifestream_subscriptions
 
 
 def get_status_tv_users_utm():
@@ -20,7 +22,7 @@ def get_status_tv_users_utm():
         FROM tariffs tt1
         LEFT JOIN tariffs_services_link tt2 ON tt1.id = tt2.tariff_id
         LEFT JOIN service_links tt3 ON tt3.service_id = tt2.service_id
-        WHERE tt3.user_id = t5.id
+        WHERE tt3.user_id = t5.id AND tt3.is_deleted = 0
     )
     FROM accounts t1
     LEFT JOIN blocks_info t2 ON (t1.id = t2.account_id AND
@@ -40,8 +42,9 @@ def get_status_tv_users_utm():
     users_status = cur.fetchall()
     UserStatus = namedtuple(
         'UserStatus',
-        ['login', 'full_name', 'balance', 'block_type', 'start_date',
-         'expire_date', 'is_deleted', 'user_id', 'lifestream_id', 'tarifs_id'],
+        ['login', 'full_name', 'balance', 'block_type',
+         'last_block_start_date', 'last_block_expire_date',
+         'last_block_is_deleted', 'user_id', 'lifestream_id', 'tarifs_id'],
         verbose=False
     )
     cur.close()
@@ -155,24 +158,108 @@ def set_id_lifestream_to_utm(utm_status_users, lifestream_status_users):
     con.close()
 
 
+def get_users_utm_with_id_lifestream(utm_status_users):
+    return [user for user in utm_status_users if user.lifestream_id]
+
+
+def get_lifestream_user(lifestream_id, lifestream_status_users):
+    for user in lifestream_status_users:
+        if user['id'] == lifestream_id:
+            return user
+
+
+def is_active_utm_user(user):
+    if (user.last_block_expire_date > datetime.now().timestamp() and
+            not user.last_block_is_deleted):
+        return False
+    return True
+
+
+def is_active_lifestream_user(user):
+    return bool(user['subscriptions'])
+
+
 def find_change_status_to_lifestream(utm_status_users,
-                                     lifestream_status_users): ...
+                                     lifestream_status_users):
+    utm_users = get_users_utm_with_id_lifestream(utm_status_users)
+
+    change_status_users = []
+    for utm_user in utm_users:
+        logging.debug(utm_user.full_name)
+        lifestrem_user = get_lifestream_user(
+            utm_user.lifestream_id, lifestream_status_users
+        )
+        logging.debug(lifestrem_user)
+        status_user_in_utm = is_active_utm_user(utm_user)
+        status_user_in_lifestream = is_active_lifestream_user(lifestrem_user)
+        if status_user_in_utm != status_user_in_lifestream:
+            change_status_users.append({
+                'user': utm_user,
+                'status_utm': status_user_in_utm,
+                'status_lifestrem': status_user_in_lifestream,
+                'subscriptions': lifestrem_user['subscriptions'],
+            })
+    return change_status_users
 
 
-def apply_change_status_lifestream(status_change): ...
+def post_requests_to_lifestream(user_id, json_requests):
+    # тестовая учётка
+    user_id = '5b585202861ff302647e5e52'
+    for json_request in json_requests:
+        # Посылаем на тестовый урл. Пока этап отладки...
+        url = '{}/v2/accounts/{}/subscriptions'.format(
+            URL_LIFESTREAM_TEST, user_id
+        )
+        r = requests.post(url, data=json_request)
+        logging.info('{} ({}) - {}: {}'.format(
+            url, json_request, r.status_code, r.text
+        ))
+
+
+def remove_subscriptions_user(id_lifestream, subscriptions):
+    subscriptions_json = [
+        json.dumps({'id': '{}'.format(subscription), 'valid': False})
+        for subscription in subscriptions
+    ]
+    post_requests_to_lifestream(id_lifestream, subscriptions_json)
+
+
+def add_subscriptions_user(id_lifestream, subscriptions_id):
+    subscriptions_json = []
+    subscriptions_lifestream = [
+        utm_tariffs_lifestream_subscriptions[subscription]
+        for subscription in subscriptions_id
+        if subscription in utm_tariffs_lifestream_subscriptions
+    ]
+    subscriptions_json = [
+        json.dumps({'id': '{}'.format(subscription), 'valid': True})
+        for subscription in subscriptions_lifestream
+    ]
+    post_requests_to_lifestream(id_lifestream, subscriptions_json)
+
+
+def apply_change_status_lifestream(status_change):
+    for user_change in status_change:
+        user = user_change['user']
+        # remove_subscriptions_user(user.lifestream_id, (101, 102, 103))
+        # continue
+        if user_change['status_utm']:
+            add_subscriptions_user(user.lifestream_id, user.tarifs_id)
+        else:
+            remove_subscriptions_user(user.lifestream_id,
+                                      user_change['subscriptions'])
 
 
 def main():
     logging.basicConfig(level=logging.INFO)
     utm_status_users = get_status_tv_users_utm()
-    # print(utm_status_users)
     lifestream_status_users = get_status_tv_users_lifestream()
-    # for user in lifestream_status_users:
-    #     print(user)
     set_id_lifestream_to_utm(utm_status_users, lifestream_status_users)
     status_change = find_change_status_to_lifestream(
         utm_status_users, lifestream_status_users
     )
+    for user in status_change:
+        print('{0[user].login} {0[user].full_name}: utm {0[status_utm]} lifestream {0[status_lifestrem]}'.format(user))
     apply_change_status_lifestream(status_change)
 
 
