@@ -105,7 +105,7 @@ def check_relations_utm_lifestream(utm_status_users, lifestream_status_users):
     for user_utm in utm_status_users:
         if not find_user_in_lifestream(user_utm, lifestream_status_users):
             logging.warning(
-                'id: {} ; username: {} ({}) -> не найден в lifestream'.format(
+                'id: {} ; utm full name: {} ({}) -> не найден в lifestream'.format(
                     user_utm.lifestream_id, user_utm.full_name, user_utm.login
                 ))
 

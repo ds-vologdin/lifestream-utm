@@ -13,8 +13,15 @@ from relation_utm_lifestream import find_change_status_to_lifestream
 def main():
     logging.basicConfig(level=logging.INFO)
     utm_status_users = get_status_tv_users_utm()
+    logging.info('Получили список пользователей из utm ({})'.format(
+        len(utm_status_users)
+    ))
     lifestream_status_users = get_status_tv_users_lifestream()
+    logging.info('Получили список пользователей из lifestream ({})'.format(
+        len(lifestream_status_users)
+    ))
     # set_id_lifestream_to_utm(utm_status_users, lifestream_status_users)
+    logging.info('Приступаем к проверки корректности связей utm и lifestream')
     check_relations_utm_lifestream(utm_status_users, lifestream_status_users)
     status_change = find_change_status_to_lifestream(
         utm_status_users, lifestream_status_users
@@ -23,6 +30,7 @@ def main():
         logging.info(
             '{0[user].login} {0[user].full_name}: utm|lifestream {0[status_utm]}|{0[status_lifestrem]}'.format(user)
         )
+    logging.info('Приступаем применению изменений статуса на lifestream')
     apply_change_status_lifestream(status_change)
 
 
