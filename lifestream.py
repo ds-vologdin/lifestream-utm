@@ -79,6 +79,17 @@ def find_users_in_utm(user_lifestream, utm_status_users):
     return found_users_utm
 
 
+def find_user_in_lifestream(utm_user, lifestream_status_users):
+    for lifestream_user in lifestream_status_users:
+        # Сравниваем ФИО на полное соответствие
+        # часть логинов в lifestrem вида gtsXXXXX, где XXXXX - логин в utm
+        if any((lifestream_user['info']['fio'] == utm_user.full_name,
+                lifestream_user['username'][3:] == utm_user.login)):
+            # id уникальный в lifestream, потому можно найти только одно
+            # соответствие
+            return lifestream_user
+
+
 def fetch_parameter_id_lifestream_from_utm(cur, utm_userid):
     # paramid = 3 - параметр c информацией об id lifestream
     sql = '''SELECT value, id FROM user_additional_params
@@ -128,6 +139,7 @@ def set_id_lifestream_to_utm_user(cur, utm_userid, id_lifestream):
 
 
 def set_id_lifestream_to_utm(utm_status_users, lifestream_status_users):
+    '''Функция для установки id lifestream в параметрах пользователя utm'''
     con = psycopg2.connect(**DATEBASE)
     cur = con.cursor()
 
@@ -155,6 +167,33 @@ def set_id_lifestream_to_utm(utm_status_users, lifestream_status_users):
     con.commit()
     cur.close()
     con.close()
+
+
+def check_relations_utm_lifestream(utm_status_users, lifestream_status_users):
+    for user_lifestream in lifestream_status_users:
+        found_users_utm = find_users_in_utm(user_lifestream, utm_status_users)
+        if not len(found_users_utm) != 1:
+            continue
+
+        user_info_str = 'id: {} ; username: {} ({})'.format(
+            user_lifestream['id'],
+            user_lifestream['username'],
+            user_lifestream['info']['fio'],
+        )
+        if found_users_utm:
+            user_info_str += ' -> {}'.format(
+                ', '.join(map(str, found_users_utm))
+            )
+        else:
+            user_info_str += ' -> не найдено'
+        logging.warning(user_info_str)
+
+    for user_utm in utm_status_users:
+        if not find_user_in_lifestream(user_utm, lifestream_status_users):
+            logging.warning(
+                'id: {} ; username: {} ({}) -> не найден в lifestream'.format(
+                    user_utm.lifestream_id, user_utm.full_name, user_utm.login
+                ))
 
 
 def get_users_utm_with_id_lifestream(utm_status_users):
@@ -189,6 +228,8 @@ def find_change_status_to_lifestream(utm_status_users,
             utm_user.lifestream_id, lifestream_status_users
         )
         logging.debug(lifestrem_user)
+        if not lifestrem_user:
+            continue
         status_user_in_utm = is_active_utm_user(utm_user)
         status_user_in_lifestream = is_active_lifestream_user(lifestrem_user)
         if status_user_in_utm != status_user_in_lifestream:
@@ -253,7 +294,8 @@ def main():
     logging.basicConfig(level=logging.INFO)
     utm_status_users = get_status_tv_users_utm()
     lifestream_status_users = get_status_tv_users_lifestream()
-    set_id_lifestream_to_utm(utm_status_users, lifestream_status_users)
+    # set_id_lifestream_to_utm(utm_status_users, lifestream_status_users)
+    check_relations_utm_lifestream(utm_status_users, lifestream_status_users)
     status_change = find_change_status_to_lifestream(
         utm_status_users, lifestream_status_users
     )
