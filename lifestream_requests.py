@@ -3,17 +3,15 @@ import requests
 import json
 
 
-from private_settings import URL_LIFESTREAM, URL_LIFESTREAM_TEST
+from private_settings import URL_LIFESTREAM
 from utm_tariffs import utm_tariffs_lifestream_subscriptions
 
 
 def post_requests_to_lifestream(user_id, json_requests):
-    # тестовая учётка
-    user_id = '5b585202861ff302647e5e52'
     for json_request in json_requests:
-        # Посылаем на тестовый урл. Пока этап отладки...
+        logging.debug(json_request)
         url = '{}/v2/accounts/{}/subscriptions'.format(
-            URL_LIFESTREAM_TEST, user_id
+            URL_LIFESTREAM, user_id
         )
         r = requests.post(url, data=json_request)
         logging.info('{} ({}) - {}: {}'.format(
@@ -22,10 +20,10 @@ def post_requests_to_lifestream(user_id, json_requests):
 
 
 def remove_subscriptions_user(id_lifestream, subscriptions):
-    subscriptions_json = [
-        json.dumps({'id': '{}'.format(subscription), 'valid': False})
-        for subscription in subscriptions
-    ]
+    subscriptions_json = []
+    for subscription in subscriptions:
+        subscription.update({'valid': False})
+        subscriptions_json.append(subscription)
     post_requests_to_lifestream(id_lifestream, subscriptions_json)
 
 
@@ -62,8 +60,6 @@ def get_status_tv_users_lifestream():
 def apply_change_status_lifestream(status_change):
     for user_change in status_change:
         user = user_change['user']
-        # remove_subscriptions_user(user.lifestream_id, (101, 102, 103))
-        # continue
         if user_change['status_utm']:
             add_subscriptions_user(user.lifestream_id, user.tarifs_id)
         else:
