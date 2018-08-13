@@ -7,14 +7,17 @@ from private_settings import URL_LIFESTREAM
 from utm_tariffs import utm_tariffs_lifestream_subscriptions
 
 
+logger = logging.getLogger(__name__)
+
+
 def post_requests_to_lifestream(user_id, json_requests):
     for json_request in json_requests:
-        logging.debug(json_request)
+        logger.debug(json_request)
         url = '{}/v2/accounts/{}/subscriptions'.format(
             URL_LIFESTREAM, user_id
         )
         r = requests.post(url, data=json_request)
-        logging.info('{} ({}) - {}: {}'.format(
+        logger.info('{} ({}) - {}: {}'.format(
             url, json_request, r.status_code, r.text
         ))
 

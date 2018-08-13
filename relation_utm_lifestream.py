@@ -9,6 +9,9 @@ from utm_requests import update_parameter_id_lifestream_into_utm
 from private_settings import DATEBASE
 
 
+logger = logging.getLogger(__name__)
+
+
 def find_users_in_utm(user_lifestream, utm_status_users):
     found_users_utm = set()
     for utm_user in utm_status_users:
@@ -45,10 +48,10 @@ def set_id_lifestream_to_utm(utm_status_users, lifestream_status_users):
         found_users_utm = find_users_in_utm(user_lifestream, utm_status_users)
 
         user_info_str += ' -> {}'.format(', '.join(map(str, found_users_utm)))
-        logging.debug(user_info_str)
+        logger.debug(user_info_str)
 
         if len(found_users_utm) != 1:
-            logging.error('{} не найдено соответствие в utm ({})'.format(
+            logger.error('{} не найдено соответствие в utm ({})'.format(
                 user_info_str, ', '.join(map(str, found_users_utm))
             ))
             continue
@@ -73,7 +76,7 @@ def set_id_lifestream_to_utm_user(cur, utm_userid, id_lifestream):
         return
 
     if lifestream_in_utm[0] != id_lifestream:
-        logging.error(
+        logger.error(
             'Не совпадают id lifestream с данными в utm: {} - {}'.format(
                 lifestream_in_utm[0], id_lifestream
             )
@@ -100,11 +103,11 @@ def check_relations_utm_lifestream(utm_status_users, lifestream_status_users):
             )
         else:
             user_info_str += ' -> не найдено'
-        logging.warning(user_info_str)
+        logger.warning(user_info_str)
 
     for user_utm in utm_status_users:
         if not find_user_in_lifestream(user_utm, lifestream_status_users):
-            logging.warning(
+            logger.warning(
                 'id: {} ; utm full name: {} ({}) -> не найден в lifestream'.format(
                     user_utm.lifestream_id, user_utm.full_name, user_utm.login
                 ))
@@ -137,11 +140,11 @@ def find_change_status_to_lifestream(utm_status_users,
 
     change_status_users = []
     for utm_user in utm_users:
-        logging.debug(utm_user.full_name)
+        logger.debug(utm_user.full_name)
         lifestrem_user = get_lifestream_user(
             utm_user.lifestream_id, lifestream_status_users
         )
-        logging.debug(lifestrem_user)
+        logger.debug(lifestrem_user)
         if not lifestrem_user:
             continue
         status_user_in_utm = is_active_utm_user(utm_user)

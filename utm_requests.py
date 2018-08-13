@@ -5,6 +5,9 @@ from collections import namedtuple
 from private_settings import DATEBASE
 
 
+logger = logging.getLogger(__name__)
+
+
 def get_status_tv_users_utm():
     con = psycopg2.connect(**DATEBASE)
     cur = con.cursor()
@@ -34,7 +37,7 @@ def get_status_tv_users_utm():
     t6.is_deleted = 0
     '''
     cur.execute(sql)
-    logging.debug(cur.query)
+    logger.debug(cur.query)
     users_status = cur.fetchall()
     UserStatus = namedtuple(
         'UserStatus',
@@ -54,14 +57,14 @@ def fetch_parameter_id_lifestream_from_utm(cur, utm_userid):
         WHERE userid = %s AND paramid = 3;
     '''
     cur.execute(sql, (utm_userid, ))
-    logging.debug(cur.query)
+    logger.debug(cur.query)
     return cur.fetchone()
 
 
 def update_parameter_id_lifestream_into_utm(cur, utm_userid, id_lifestream):
     sql = '''UPDATE user_additional_params SET value=%s WHERE id = %s;'''
     cur.execute(sql, (id_lifestream, utm_userid))
-    logging.info(cur.query)
+    logger.info(cur.query)
 
 
 def insert_parameter_id_lifestream_into_utm(
@@ -72,4 +75,4 @@ def insert_parameter_id_lifestream_into_utm(
         paramid, userid, value)
         VALUES (3, %s, %s);'''
     cur.execute(sql, (utm_parameter_id, id_lifestream))
-    logging.info(cur.query)
+    logger.info(cur.query)
