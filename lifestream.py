@@ -1,4 +1,3 @@
-
 import logging
 import argparse
 
@@ -9,6 +8,8 @@ from utm_requests import get_status_tv_users_utm
 
 from relation_utm_lifestream import check_relations_utm_lifestream
 from relation_utm_lifestream import find_change_status_to_lifestream
+
+from send_email import send_report_to_email
 
 
 logger = logging.getLogger(__file__)
@@ -44,6 +45,10 @@ def parse_arguments():
         choices=['debug', 'info', 'warning', 'error', 'critical'],
         default='warning',
         help='default: warning'
+    )
+    parser.add_argument(
+        '--email-report', default=None,
+        help='default: None (report not send to email). Use: --email-report "a@test.com, b@test.com"'
     )
     return parser.parse_args()
 
@@ -84,9 +89,13 @@ def main():
             '{0[user].login} {0[user].full_name}: utm|lifestream {0[status_utm]}|{0[status_lifestrem]}'.format(user)
         )
 
-    if not args.no_apply_change:
-        logger.info('Примененяем изменения статуса на lifestream')
-        apply_change_status_lifestream(status_change)
+    if args.no_apply_change:
+        return
+
+    logger.info('Примененяем изменения статуса на lifestream')
+    apply_change_status_lifestream(status_change)
+
+    send_report_to_email(args.email_report, status_change)
 
 
 if __name__ == '__main__':
