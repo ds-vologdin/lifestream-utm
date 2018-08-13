@@ -1,0 +1,18 @@
+DATEBASE = {
+    'host': 'localhost',
+    'dbname': 'UTM5',
+    'user': 'user-report',
+    'password': 'password',
+    'port': '5432',
+}
+
+SMTP_CONFIG = {
+    'host': 'hostmail.su',
+    'port': 25,
+    'user': 'user',
+    'sender': 'user@hostmail.su',
+    'passwd': 'password',
+}
+
+URL_LIFESTREAM = 'http://provider.node.lfstrm.tv'
+URL_LIFESTREAM_TEST = 'http://provider.test.lfstrm.tv'
