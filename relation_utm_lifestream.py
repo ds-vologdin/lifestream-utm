@@ -16,7 +16,7 @@ def find_users_in_utm(user_lifestream, utm_status_users):
     found_users_utm = set()
     for utm_user in utm_status_users:
         # Сравниваем ФИО на полное соответствие
-        # часть логинов в lifestrem вида gtsXXXXX, где XXXXX - логин в utm
+        # часть логинов в lifestream вида gtsXXXXX, где XXXXX - логин в utm
         if any((user_lifestream['info']['fio'] == utm_user.full_name,
                 user_lifestream['username'][3:] == utm_user.login)):
             found_users_utm.add((utm_user.login, utm_user.user_id))
@@ -26,7 +26,7 @@ def find_users_in_utm(user_lifestream, utm_status_users):
 def find_user_in_lifestream(utm_user, lifestream_status_users):
     for lifestream_user in lifestream_status_users:
         # Сравниваем ФИО на полное соответствие
-        # часть логинов в lifestrem вида gtsXXXXX, где XXXXX - логин в utm
+        # часть логинов в lifestream вида gtsXXXXX, где XXXXX - логин в utm
         if any((lifestream_user['info']['fio'] == utm_user.full_name,
                 lifestream_user['username'][3:] == utm_user.login)):
             # id уникальный в lifestream, потому можно найти только одно
@@ -35,7 +35,7 @@ def find_user_in_lifestream(utm_user, lifestream_status_users):
 
 
 def set_id_lifestream_to_utm(utm_status_users, lifestream_status_users):
-    '''Функция для установки id lifestream в параметрах пользователя utm'''
+    """Функция для установки id lifestream в параметрах пользователя utm"""
     con = psycopg2.connect(**DATEBASE)
     cur = con.cursor()
 
@@ -141,19 +141,19 @@ def find_change_status_to_lifestream(utm_status_users,
     change_status_users = []
     for utm_user in utm_users:
         logger.debug(utm_user.full_name)
-        lifestrem_user = get_lifestream_user(
+        lifestream_user = get_lifestream_user(
             utm_user.lifestream_id, lifestream_status_users
         )
-        logger.debug(lifestrem_user)
-        if not lifestrem_user:
+        logger.debug(lifestream_user)
+        if not lifestream_user:
             continue
         status_user_in_utm = is_active_utm_user(utm_user)
-        status_user_in_lifestream = is_active_lifestream_user(lifestrem_user)
+        status_user_in_lifestream = is_active_lifestream_user(lifestream_user)
         if status_user_in_utm != status_user_in_lifestream:
             change_status_users.append({
                 'user': utm_user,
                 'status_utm': status_user_in_utm,
                 'status_lifestrem': status_user_in_lifestream,
-                'subscriptions': lifestrem_user['subscriptions'],
+                'subscriptions': lifestream_user['subscriptions'],
             })
     return change_status_users

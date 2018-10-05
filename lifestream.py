@@ -86,7 +86,7 @@ def main():
     logger.info('Список изменившихся статусов')
     for user in status_change:
         logger.info(
-            '{0[user].login} {0[user].full_name}: utm|lifestream {0[status_utm]}|{0[status_lifestrem]}'.format(user)
+            '{0[user].login} {0[user].full_name}: utm|lifestream {0[status_utm]}|{0[status_lifestream]}'.format(user)
         )
 
     if args.no_apply_change:
