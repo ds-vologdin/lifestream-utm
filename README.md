@@ -13,7 +13,34 @@ pip install -r requirements.txt
 
 Не забываем про файл private_settings.py. Пример файла можно посмотреть в private_settings.py.sample.
 
-Настриваем crontab
+Настраиваем crontab
 ```
 */20 * * * * /full/path/to/lifestream-utm/lifestream.sh
 ```
+
+# Docker
+
+## сборка образа
+
+```
+docker build -t lilfestream:latest .
+```
+
+## запуск контейнера
+
+```
+docker run -it ds-vologdin/lilfestream:latest
+```
+
+# Docker-compose
+
+```bash
+docker-compose up
+```
+
+если нам надо предварительно собрать образ, то
+```bash
+docker-compose up --build
+```
+
+Логи будут лежать в /var/lib/docker/containers/[container-id]/[container-id]-json.log
