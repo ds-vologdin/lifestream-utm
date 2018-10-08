@@ -3,17 +3,25 @@ import logging
 from collections import namedtuple
 
 from private_settings import DATEBASE
-
+from utm_tariffs import utm_tariffs_lifestream_subscriptions
 
 logger = logging.getLogger(__name__)
+
+
+UserStatus = namedtuple(
+    'UserStatus',
+    ['login', 'full_name', 'balance', 'block_type',
+     'last_block_start_date', 'last_block_expire_date',
+     'last_block_is_deleted', 'user_id', 'lifestream_id', 'tarifs_id'],
+    verbose=False
+)
 
 
 def get_status_tv_users_utm():
     con = psycopg2.connect(**DATEBASE)
     cur = con.cursor()
 
-    # Ищем пользователей с тарифными связками:
-    # 1303, 1309, 1310, 1515, 1516, 1517, 1518
+    tariff_ids = tuple(utm_tariffs_lifestream_subscriptions.keys())
     sql = '''SELECT DISTINCT t5.login, t5.full_name, t1.balance, t2.block_type,
     t2.start_date, t2.expire_date, t2.is_deleted, t5.id, t9.value,
     array(
@@ -33,19 +41,11 @@ def get_status_tv_users_utm():
     LEFT JOIN tariffs_services_link t7 ON t6.service_id = t7.service_id
     LEFT JOIN tariffs t8 ON t8.id = t7.tariff_id
     LEFT JOIN user_additional_params t9 ON t9.userid = t5.id AND t9.paramid = 3
-    WHERE t7.tariff_id IN (1515, 1516, 1517, 1518, 1594, 1662) AND
-    t6.is_deleted = 0
-    '''
-    cur.execute(sql)
+    WHERE t7.tariff_id IN %s AND
+    t6.is_deleted = 0;'''
+    cur.execute(sql, (tariff_ids,))
     logger.debug(cur.query)
     users_status = cur.fetchall()
-    UserStatus = namedtuple(
-        'UserStatus',
-        ['login', 'full_name', 'balance', 'block_type',
-         'last_block_start_date', 'last_block_expire_date',
-         'last_block_is_deleted', 'user_id', 'lifestream_id', 'tarifs_id'],
-        verbose=False
-    )
     cur.close()
     con.close()
     return list(map(UserStatus._make, users_status))
