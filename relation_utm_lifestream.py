@@ -153,7 +153,7 @@ def find_change_status_to_lifestream(utm_status_users,
             change_status_users.append({
                 'user': utm_user,
                 'status_utm': status_user_in_utm,
-                'status_lifestrem': status_user_in_lifestream,
+                'status_lifestream': status_user_in_lifestream,
                 'subscriptions': lifestream_user['subscriptions'],
             })
     return change_status_users
