@@ -13,11 +13,11 @@ from private_settings import SMTP_CONFIG
 logger = logging.getLogger(__name__)
 
 
-def send_email(recievers, text, subject, filename=None, use_tls=False):
+def send_email(receivers, text, subject, filename=None, use_tls=False):
     msg = MIMEMultipart()
     msg['Subject'] = subject
     msg['From'] = SMTP_CONFIG['sender']
-    msg['To'] = ', '.join(recievers)
+    msg['To'] = ', '.join(receivers)
     msg["Date"] = formatdate(localtime=True)
     msg.attach(MIMEText(text))
 
@@ -44,19 +44,19 @@ def send_email(recievers, text, subject, filename=None, use_tls=False):
         if use_tls:
             s.starttls()
         s.login(SMTP_CONFIG['user'], SMTP_CONFIG['passwd'])
-        s.sendmail(SMTP_CONFIG['sender'], recievers, msg.as_string())
+        s.sendmail(SMTP_CONFIG['sender'], receivers, msg.as_string())
 
 
-def send_report_to_email(recievers, status_change_user):
-    if not recievers:
+def send_report_to_email(receivers, status_change_user):
+    if not receivers:
         return
-    recievers = recievers.replace(',', ' ').split()
+    receivers = receivers.replace(',', ' ').split()
     subject = 'lifestream report'
     message = ''
     for user in status_change_user:
-        message += '{0[user].login} {0[user].full_name}: {0[status_lifestrem]} -> {0[status_utm]}\n'.format(
+        message += '{0[user].login} {0[user].full_name}: {0[status_lifestream]} -> {0[status_utm]}\n'.format(
             user
         )
     if message:
-        send_email(recievers, message, subject)
-        logger.info('send email to {}'.format(','.join(recievers)))
+        send_email(receivers, message, subject)
+        logger.info('send email to {}'.format(','.join(receivers)))
