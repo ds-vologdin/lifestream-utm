@@ -1,17 +1,8 @@
 import pytest
-from collections import namedtuple
 import datetime
 
 import relation_utm_lifestream
-
-
-UserStatus = namedtuple(
-    'UserStatus',
-    ['login', 'full_name', 'balance', 'block_type',
-     'last_block_start_date', 'last_block_expire_date',
-     'last_block_is_deleted', 'user_id', 'lifestream_id', 'tarifs_id'],
-    verbose=False
-)
+from utm_requests import UserStatus
 
 
 @pytest.fixture(
