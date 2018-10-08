@@ -13,7 +13,6 @@ UserStatus = namedtuple(
     ['login', 'full_name', 'balance', 'block_type',
      'last_block_start_date', 'last_block_expire_date',
      'last_block_is_deleted', 'user_id', 'lifestream_id', 'tarifs_id'],
-    verbose=False
 )
 
 
