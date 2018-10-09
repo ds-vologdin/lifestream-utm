@@ -31,7 +31,6 @@ def remove_subscriptions_user(id_lifestream, subscriptions):
 
 
 def add_subscriptions_user(id_lifestream, subscriptions_id):
-    subscriptions_json = []
     subscriptions_lifestream = [
         utm_tariffs_lifestream_subscriptions[subscription]
         for subscription in subscriptions_id
