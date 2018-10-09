@@ -91,7 +91,7 @@ def lifestream_status_users():
                 'fio': 'Учетка для теста', 'activation_date': '24.12.15', 'period': '',
                 'address': 'г.Киров'
             },
-            'subscriptions': [{'id': '109'}], 'is_blocked': False,
+            'subscriptions': [], 'is_blocked': False,
             'created': '2015-12-24 13:27:24.189000+03:00'
         },
     ]
@@ -108,3 +108,11 @@ def test_get_lifestream_user_correct(lifestream_status_users):
     user = relation_utm_lifestream.get_lifestream_user(
         '567bc88ce2a6fe09ce000112', lifestream_status_users)
     assert user['username'] == 'test2'
+
+
+def test_is_active_lifestream_user(lifestream_status_users):
+    user_0, user_1 = lifestream_status_users
+    is_active = relation_utm_lifestream.is_active_lifestream_user(user_0)
+    assert is_active is True
+    is_active = relation_utm_lifestream.is_active_lifestream_user(user_1)
+    assert is_active is False
