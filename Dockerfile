@@ -11,4 +11,4 @@ RUN pip install --no-cache-dir -r requirements.txt
 COPY --chown=lifestream:lifestream . .
 
 USER lifestream:lifestream
-ENTRYPOINT ["python", "lifestream.py", "--log-level=info", "--email-report=bud_on@kirovcity.ru i.solovyev@kgts.su"]
+ENTRYPOINT ["python", "lifestream-utm/lifestream.py", "--log-level=info", "--email-report=bud_on@kirovcity.ru i.solovyev@kgts.su"]
