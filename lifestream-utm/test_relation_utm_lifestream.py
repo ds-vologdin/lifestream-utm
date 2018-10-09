@@ -93,7 +93,7 @@ def lifestream_users():
             'id': '567bc88ce2a6fe09ce000111', 'city': '',
             'email': 'anton@mail.ru', 'username': 'test1',
             'info': {
-                'fio': 'Учетка для теста', 'activation_date': '24.12.15', 'period': '',
+                'fio': 'User1', 'activation_date': '24.12.15', 'period': '',
                 'address': 'г.Киров'
             },
             'subscriptions': [{'id': '109'}], 'is_blocked': False,
@@ -102,7 +102,7 @@ def lifestream_users():
         {
             'updated': '2018-10-09 08:01:07.197000+03:00',
             'id': '567bc88ce2a6fe09ce000112', 'city': '',
-            'email': 'anton@mail.ru', 'username': 'test2',
+            'email': 'anton@mail.ru', 'username': 'gts11272',
             'info': {
                 'fio': 'Учетка для теста', 'activation_date': '24.12.15', 'period': '',
                 'address': 'г.Киров'
@@ -113,7 +113,7 @@ def lifestream_users():
         {
             'updated': '2018-10-09 08:01:07.197000+03:00',
             'id': '567bc88ce2a6fe09ce000113', 'city': '',
-            'email': 'anton@mail.ru', 'username': 'test1',
+            'email': 'anton@mail.ru', 'username': 'test3',
             'info': {
                 'fio': 'Учетка для теста', 'activation_date': '24.12.15', 'period': '',
                 'address': 'г.Киров'
@@ -134,7 +134,7 @@ def test_get_lifestream_user(id_lifestream_params, lifestream_users):
 def test_get_lifestream_user_correct(lifestream_users):
     user = relation_utm_lifestream.get_lifestream_user(
         '567bc88ce2a6fe09ce000112', lifestream_users)
-    assert user['username'] == 'test2'
+    assert user['username'] == 'gts11272'
 
 
 def test_is_active_lifestream_user(lifestream_users):
@@ -160,3 +160,14 @@ def test_find_change_status_to_lifestream(utm_users, lifestream_users):
     assert change[1]['status_utm'] is True
     assert len(change[1]['subscriptions']) == 0
     assert change[1]['user'].tarifs_id == [1311, 1517, 1716]
+
+
+def test_check_relations_utm_lifestream(utm_users, lifestream_users):
+    no_relations_in_utm, no_relations_in_lifestream = relation_utm_lifestream._check_relations_utm_lifestream(
+        utm_users, lifestream_users)
+    assert len(no_relations_in_utm) == 1
+    assert no_relations_in_utm[0][0]['username'] == 'test3'
+
+    assert len(no_relations_in_lifestream) == 2
+    assert no_relations_in_lifestream[0].full_name == 'User3'
+    assert no_relations_in_lifestream[1].full_name == 'User4'
