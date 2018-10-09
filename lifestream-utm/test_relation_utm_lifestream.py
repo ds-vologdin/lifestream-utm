@@ -23,7 +23,7 @@ def active_user_params(request):
     return request.param
 
 
-def test_is_active_lifestream_user(active_user_params):
+def test_is_active_utm_user(active_user_params):
     params, result = active_user_params
     user = UserStatus(
         login='11278', full_name='User1', balance=184.62, block_type=1,
