@@ -67,7 +67,6 @@ def main():
 
     lifestream_status_users = get_status_tv_users_lifestream()
     logger.info('Получили список пользователей из lifestream (%s)', len(lifestream_status_users))
-    logger.info(lifestream_status_users[0])
 
     if args.check_relations:
         logger.info('Приступаем к проверке корректности связей utm и lifestream')
