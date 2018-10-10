@@ -30,25 +30,25 @@ def utm_users():
             login='11278', full_name='User1', balance=184.62, block_type=1,
             last_block_start_date=1538342370, last_block_expire_date=datetime.datetime.now().timestamp()+600,
             last_block_is_deleted=False, user_id=1146, lifestream_id='567bc88ce2a6fe09ce000111',
-            tarifs_id=[1311, 1517]
+            tariffs_id=[1311, 1517]
         ),
         UserStatus(
             login='11272', full_name='User2', balance=184.62, block_type=1,
             last_block_start_date=1538342370, last_block_expire_date=datetime.datetime.now().timestamp(),
             last_block_is_deleted=True, user_id=1146, lifestream_id=None,
-            tarifs_id=[1311, 1517]
+            tariffs_id=[1311, 1517]
         ),
         UserStatus(
             login='11233', full_name='User3', balance=184.62, block_type=1,
             last_block_start_date=1538342370, last_block_expire_date=datetime.datetime.now().timestamp(),
             last_block_is_deleted=True, user_id=1146, lifestream_id='567bc88ce2a6fe09ce000112',
-            tarifs_id=[1311, 1517, 1716]
+            tariffs_id=[1311, 1517, 1716]
         ),
         UserStatus(
             login='12433', full_name='User4', balance=184.62, block_type=1,
             last_block_start_date=1538342370, last_block_expire_date=datetime.datetime.now().timestamp(),
             last_block_is_deleted=True, user_id=1146, lifestream_id='567bc88ce2a6fe09ce000113',
-            tarifs_id=[1311, 1517, 1716]
+            tariffs_id=[1311, 1517, 1716]
         ),
     ]
 
@@ -59,7 +59,7 @@ def test_is_active_utm_user(active_user_params):
         login='11278', full_name='User1', balance=184.62, block_type=1,
         last_block_start_date=1538342370, last_block_expire_date=params[0],
         last_block_is_deleted=params[1], user_id=1146, lifestream_id='59e76927eea9ae0ce20c222e',
-        tarifs_id=[1311, 1517]
+        tariffs_id=[1311, 1517]
     )
     assert relation_utm_lifestream.is_active_utm_user(user) is result
 
@@ -159,7 +159,7 @@ def test_find_change_status_to_lifestream(utm_users, lifestream_users):
     assert change[1]['status_lifestream'] is False
     assert change[1]['status_utm'] is True
     assert len(change[1]['subscriptions']) == 0
-    assert change[1]['user'].tarifs_id == [1311, 1517, 1716]
+    assert change[1]['user'].tariffs_id == [1311, 1517, 1716]
 
 
 def test_check_relations_utm_lifestream(utm_users, lifestream_users):
