@@ -8,4 +8,5 @@ utm_tariffs_lifestream_subscriptions = {
     1715: '5001',
     1716: '5002',
     1717: '5003',
+    1725: '1003',
 }
