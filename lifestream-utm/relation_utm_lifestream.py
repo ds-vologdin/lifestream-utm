@@ -1,6 +1,8 @@
 import logging
 from datetime import datetime
 
+from utm_tariffs import utm_tariffs_lifestream_subscriptions
+
 
 logger = logging.getLogger(__name__)
 
@@ -75,8 +77,14 @@ def get_lifestream_user(lifestream_id, lifestream_status_users):
 
 
 def is_active_utm_user(user):
-    if (user.last_block_expire_date > datetime.now().timestamp() and
-            not user.last_block_is_deleted):
+    is_block = (user.last_block_expire_date > datetime.now().timestamp() and
+                not user.last_block_is_deleted)
+    tariff_is_not_active = True
+    for tariff_id in user.tariffs_id:
+        if tariff_id in utm_tariffs_lifestream_subscriptions:
+            tariff_is_not_active = False
+            break
+    if is_block or tariff_is_not_active:
         return False
     return True
 
@@ -87,11 +95,12 @@ def is_active_lifestream_user(user):
 
 def find_change_status_to_lifestream(
         utm_status_users, lifestream_status_users):
+    logger.debug('find_change_status_to_lifestream()')
     utm_users = get_users_utm_with_id_lifestream(utm_status_users)
 
     change_status_users = []
     for utm_user in utm_users:
-        logger.debug(utm_user.full_name)
+        logger.debug(utm_user)
         lifestream_user = get_lifestream_user(
             utm_user.lifestream_id, lifestream_status_users
         )
@@ -103,6 +112,7 @@ def find_change_status_to_lifestream(
         if status_user_in_utm != status_user_in_lifestream:
             change_status_users.append({
                 'user': utm_user,
+                'lifestream_user': lifestream_user,
                 'status_utm': status_user_in_utm,
                 'status_lifestream': status_user_in_lifestream,
                 'subscriptions': lifestream_user['subscriptions'],

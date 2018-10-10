@@ -80,8 +80,17 @@ def main():
     logger.info('Список изменившихся статусов')
     for user in status_change:
         logger.info(
-            '{0[user].login} {0[user].full_name}: utm|lifestream {0[status_utm]}|{0[status_lifestream]}'.format(user)
+            '%s %s %s: utm|lifestream tariffs %s|%s status %s|%s',
+            user['user'].login,
+            user['user'].lifestream_id,
+            user['user'].full_name,
+            user['user'].tariffs_id,
+            user['subscriptions'],
+            user['status_utm'],
+            user['status_lifestream']
         )
+        logger.debug(user['user'])
+        logger.debug(user['lifestream_user'])
 
     if args.no_apply_change:
         return

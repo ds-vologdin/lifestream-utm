@@ -12,7 +12,7 @@ UserStatus = namedtuple(
     'UserStatus',
     ['login', 'full_name', 'balance', 'block_type',
      'last_block_start_date', 'last_block_expire_date',
-     'last_block_is_deleted', 'user_id', 'lifestream_id', 'tariffs_id'],
+     'last_block_is_deleted', 'user_id', 'lifestream_id', 'tariffs_id', 'deleted_tariffs_id'],
 )
 
 
@@ -29,7 +29,14 @@ def get_status_tv_users_utm():
         LEFT JOIN tariffs_services_link tt2 ON tt1.id = tt2.tariff_id
         LEFT JOIN service_links tt3 ON tt3.service_id = tt2.service_id
         WHERE tt3.user_id = t5.id AND tt3.is_deleted = 0
-    )
+    ) active_service,
+    array(
+        SELECT tariff_id
+        FROM tariffs tt1
+        LEFT JOIN tariffs_services_link tt2 ON tt1.id = tt2.tariff_id
+        LEFT JOIN service_links tt3 ON tt3.service_id = tt2.service_id
+        WHERE tt3.user_id = t5.id AND tt3.is_deleted = 1
+    ) deleted_service
     FROM accounts t1
     LEFT JOIN blocks_info t2 ON (t1.id = t2.account_id AND
     t2.id = (SELECT MAX(id)
@@ -40,8 +47,7 @@ def get_status_tv_users_utm():
     LEFT JOIN tariffs_services_link t7 ON t6.service_id = t7.service_id
     LEFT JOIN tariffs t8 ON t8.id = t7.tariff_id
     LEFT JOIN user_additional_params t9 ON t9.userid = t5.id AND t9.paramid = 3
-    WHERE t7.tariff_id IN %s AND
-    t6.is_deleted = 0;'''
+    WHERE t7.tariff_id IN %s AND t9.value <> '';'''
     cur.execute(sql, (tariff_ids,))
     logger.debug(cur.query)
     users_status = cur.fetchall()

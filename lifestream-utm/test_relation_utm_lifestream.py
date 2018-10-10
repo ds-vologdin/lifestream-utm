@@ -30,25 +30,31 @@ def utm_users():
             login='11278', full_name='User1', balance=184.62, block_type=1,
             last_block_start_date=1538342370, last_block_expire_date=datetime.datetime.now().timestamp()+600,
             last_block_is_deleted=False, user_id=1146, lifestream_id='567bc88ce2a6fe09ce000111',
-            tariffs_id=[1311, 1517]
+            tariffs_id=[1311, 1517], deleted_tariffs_id=[]
         ),
         UserStatus(
             login='11272', full_name='User2', balance=184.62, block_type=1,
             last_block_start_date=1538342370, last_block_expire_date=datetime.datetime.now().timestamp(),
             last_block_is_deleted=True, user_id=1146, lifestream_id=None,
-            tariffs_id=[1311, 1517]
+            tariffs_id=[1311, 1517], deleted_tariffs_id=[]
         ),
         UserStatus(
             login='11233', full_name='User3', balance=184.62, block_type=1,
             last_block_start_date=1538342370, last_block_expire_date=datetime.datetime.now().timestamp(),
             last_block_is_deleted=True, user_id=1146, lifestream_id='567bc88ce2a6fe09ce000112',
-            tariffs_id=[1311, 1517, 1716]
+            tariffs_id=[1311, 1517, 1716], deleted_tariffs_id=[]
         ),
         UserStatus(
             login='12433', full_name='User4', balance=184.62, block_type=1,
             last_block_start_date=1538342370, last_block_expire_date=datetime.datetime.now().timestamp(),
             last_block_is_deleted=True, user_id=1146, lifestream_id='567bc88ce2a6fe09ce000113',
-            tariffs_id=[1311, 1517, 1716]
+            tariffs_id=[1311, 1517, 1716], deleted_tariffs_id=[]
+        ),
+        UserStatus(
+            login='12433', full_name='User5', balance=184.62, block_type=1,
+            last_block_start_date=1538342370, last_block_expire_date=datetime.datetime.now().timestamp(),
+            last_block_is_deleted=True, user_id=1146, lifestream_id='567bc88ce2a6fe09ce000114',
+            tariffs_id=[1311], deleted_tariffs_id=[]
         ),
     ]
 
@@ -59,14 +65,14 @@ def test_is_active_utm_user(active_user_params):
         login='11278', full_name='User1', balance=184.62, block_type=1,
         last_block_start_date=1538342370, last_block_expire_date=params[0],
         last_block_is_deleted=params[1], user_id=1146, lifestream_id='59e76927eea9ae0ce20c222e',
-        tariffs_id=[1311, 1517]
+        tariffs_id=[1311, 1517], deleted_tariffs_id=[]
     )
     assert relation_utm_lifestream.is_active_utm_user(user) is result
 
 
 def test_get_users_utm_with_id_lifestream(utm_users):
     user_with_id_lifestream = relation_utm_lifestream.get_users_utm_with_id_lifestream(utm_users)
-    assert len(user_with_id_lifestream) == 3
+    assert len(user_with_id_lifestream) == 4
     assert user_with_id_lifestream[0].login == '11278'
     assert user_with_id_lifestream[0].lifestream_id == '567bc88ce2a6fe09ce000111'
 
@@ -168,6 +174,6 @@ def test_check_relations_utm_lifestream(utm_users, lifestream_users):
     assert len(no_relations_in_utm) == 1
     assert no_relations_in_utm[0][0]['username'] == 'test3'
 
-    assert len(no_relations_in_lifestream) == 2
+    assert len(no_relations_in_lifestream) == 3
     assert no_relations_in_lifestream[0].full_name == 'User3'
     assert no_relations_in_lifestream[1].full_name == 'User4'
