@@ -71,7 +71,7 @@ def apply_change_status_lifestream(status_change):
     for user_change in status_change:
         user = user_change['user']
         if user_change['status_utm']:
-            add_subscriptions_user(user.lifestream_id, user.tariffs_id)
+            return add_subscriptions_user(user.lifestream_id, user.tariffs_id)
         else:
-            remove_subscriptions_user(user.lifestream_id,
-                                      user_change['subscriptions'])
+            return remove_subscriptions_user(
+                user.lifestream_id, user_change['subscriptions'])

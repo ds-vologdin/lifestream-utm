@@ -1,7 +1,12 @@
+import datetime
+
 from lifestream_requests import get_status_tv_users_lifestream
 from lifestream_requests import get_subscriptions_tv_user_lifestream
 from lifestream_requests import add_subscriptions_user
 from lifestream_requests import remove_subscriptions_user
+from lifestream_requests import apply_change_status_lifestream
+
+from utm_requests import UserStatus
 
 from utm_tariffs import UTM_TARIFFS_LIFESTREAM_SUBSCRIPTIONS
 
@@ -78,3 +83,56 @@ def test_add_remove_subscriptions_user():
     subscriptions = get_subscriptions_tv_user_lifestream(ID_TEST_USER)
     assert not is_found_subscription_id(subscriptions, test_subscription_id_lifestream)
 
+
+def test_apply_change_status_lifestream():
+    subscriptions = get_subscriptions_tv_user_lifestream(ID_TEST_USER)
+    test_subscription = get_test_subscriptions(subscriptions)
+    test_subscription_id_utm, test_subscription_id_lifestream = test_subscription
+
+    user_utm = UserStatus(
+        login='11278', full_name='User1', balance=184.62, block_type=1,
+        last_block_start_date=1538342370, last_block_expire_date=datetime.datetime.now().timestamp() + 600,
+        last_block_is_deleted=False, user_id=1146, lifestream_id=ID_TEST_USER,
+        tariffs_id=[1311, test_subscription_id_utm], deleted_tariffs_id=[]
+    )
+
+    user_lifestream = {
+        'updated': '2018-10-09 08:01:07.197000+03:00',
+        'id': ID_TEST_USER, 'city': '',
+        'email': 'anton@mail.ru', 'username': 'test1',
+        'info': {
+            'fio': 'User1', 'activation_date': '24.12.15', 'period': '',
+            'address': 'г.Киров'
+        },
+        'subscriptions': [{'id': test_subscription_id_lifestream}],
+        'is_blocked': False,
+        'created': '2015-12-24 13:27:24.189000+03:00'
+    }
+    status_change = [{
+        'user': user_utm,
+        'lifestream_user': user_lifestream,
+        'status_utm': True,
+        'status_lifestream': False,
+        'subscriptions': user_lifestream['subscriptions'],
+    }]
+
+    result = apply_change_status_lifestream(status_change)
+    assert isinstance(result, list)
+    assert len(result) == 1
+    assert result[0].status_code == 200
+
+    subscriptions = get_subscriptions_tv_user_lifestream(ID_TEST_USER)
+    assert is_found_subscription_id(subscriptions, test_subscription_id_lifestream)
+
+    status_change[0].update({
+        'status_utm': False,
+        'status_lifestream': True,
+    })
+
+    result = apply_change_status_lifestream(status_change)
+    assert isinstance(result, list)
+    assert len(result) == 1
+    assert result[0].status_code == 200
+
+    subscriptions = get_subscriptions_tv_user_lifestream(ID_TEST_USER)
+    assert not is_found_subscription_id(subscriptions, test_subscription_id_lifestream)
