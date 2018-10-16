@@ -12,6 +12,7 @@ logger = logging.getLogger(__name__)
 
 
 def post_requests_to_lifestream(user_id, json_requests):
+    result = []
     for json_request in json_requests:
         logger.debug(json_request)
         url = '{}/v2/accounts/{}/subscriptions'.format(
@@ -21,6 +22,8 @@ def post_requests_to_lifestream(user_id, json_requests):
         logger.info('{} ({}) - {}: {}'.format(
             url, json_request, r.status_code, r.text
         ))
+        result.append(r)
+    return result
 
 
 def remove_subscriptions_user(id_lifestream, subscriptions):
@@ -28,7 +31,7 @@ def remove_subscriptions_user(id_lifestream, subscriptions):
     for subscription in subscriptions:
         subscription.update({'valid': False})
         subscriptions_json.append(subscription)
-    post_requests_to_lifestream(id_lifestream, subscriptions_json)
+    return post_requests_to_lifestream(id_lifestream, subscriptions_json)
 
 
 def add_subscriptions_user(id_lifestream, subscriptions_id):
@@ -41,7 +44,7 @@ def add_subscriptions_user(id_lifestream, subscriptions_id):
         json.dumps({'id': '{}'.format(subscription), 'valid': True})
         for subscription in subscriptions_lifestream
     ]
-    post_requests_to_lifestream(id_lifestream, subscriptions_json)
+    return post_requests_to_lifestream(id_lifestream, subscriptions_json)
 
 
 def get_status_tv_users_lifestream(
