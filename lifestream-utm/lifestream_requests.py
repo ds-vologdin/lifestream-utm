@@ -1,6 +1,7 @@
 import logging
 import requests
 import json
+from typing import List
 
 
 from private_settings import URL_LIFESTREAM
@@ -43,18 +44,14 @@ def add_subscriptions_user(id_lifestream, subscriptions_id):
     post_requests_to_lifestream(id_lifestream, subscriptions_json)
 
 
-def get_status_tv_users_lifestream():
-    accounts_json = requests.get('{}/v2/accounts?page_size=100&page=0'.format(
-        URL_LIFESTREAM
-    ))
-    accounts_request = json.loads(accounts_json.text)
-    accounts = accounts_request['accounts']
-    for i in range(1, accounts_request['pagination']['pages']):
-        accounts_json_page = requests.get(
-            '{}/v2/accounts?page_size=100&page={}'.format(
-                URL_LIFESTREAM, i
-            )
-        )
+def get_status_tv_users_lifestream(
+        url_lifestream: str=URL_LIFESTREAM) -> List[dict]:
+    url = '{}/v2/accounts?page_size=100&page='.format(url_lifestream)
+    accounts_json = requests.get(url + '0')
+    accounts_request = json.loads(accounts_json.text)  # type: dict
+    accounts = accounts_request['accounts']  # type: List[dict]
+    for page in range(1, accounts_request['pagination']['pages']):
+        accounts_json_page = requests.get(url + str(page))
         accounts += json.loads(accounts_json_page.text)['accounts']
     return accounts
 
