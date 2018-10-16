@@ -3,7 +3,7 @@ import logging
 from collections import namedtuple
 
 from private_settings import DATEBASE
-from utm_tariffs import utm_tariffs_lifestream_subscriptions
+from utm_tariffs import UTM_TARIFFS_LIFESTREAM_SUBSCRIPTIONS
 
 logger = logging.getLogger(__name__)
 
@@ -20,7 +20,7 @@ def get_status_tv_users_utm():
     con = psycopg2.connect(**DATEBASE)
     cur = con.cursor()
 
-    tariff_ids = tuple(utm_tariffs_lifestream_subscriptions.keys())
+    tariff_ids = tuple(UTM_TARIFFS_LIFESTREAM_SUBSCRIPTIONS.keys())
     sql = '''SELECT DISTINCT t5.login, t5.full_name, t1.balance, t2.block_type,
     t2.start_date, t2.expire_date, t2.is_deleted, t5.id, t9.value,
     array(

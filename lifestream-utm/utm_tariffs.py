@@ -1,4 +1,4 @@
-utm_tariffs_lifestream_subscriptions = {
+UTM_TARIFFS_LIFESTREAM_SUBSCRIPTIONS = {
     1515: '104',
     1516: '110',
     1517: '102',

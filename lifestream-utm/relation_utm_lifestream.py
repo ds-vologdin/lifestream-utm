@@ -1,7 +1,7 @@
 import logging
 from datetime import datetime
 
-from utm_tariffs import utm_tariffs_lifestream_subscriptions
+from utm_tariffs import UTM_TARIFFS_LIFESTREAM_SUBSCRIPTIONS
 
 
 logger = logging.getLogger(__name__)
@@ -81,7 +81,7 @@ def is_active_utm_user(user):
                 not user.last_block_is_deleted)
     tariff_is_not_active = True
     for tariff_id in user.tariffs_id:
-        if tariff_id in utm_tariffs_lifestream_subscriptions:
+        if tariff_id in UTM_TARIFFS_LIFESTREAM_SUBSCRIPTIONS:
             tariff_is_not_active = False
             break
     if is_block or tariff_is_not_active:
