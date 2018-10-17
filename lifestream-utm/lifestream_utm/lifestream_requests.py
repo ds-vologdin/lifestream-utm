@@ -4,8 +4,8 @@ import json
 from typing import List, Dict, Any
 
 
-from private_settings import URL_LIFESTREAM
-from utm_tariffs import UTM_TARIFFS_LIFESTREAM_SUBSCRIPTIONS
+from settings.private_settings import URL_LIFESTREAM
+from settings.utm_tariffs import UTM_TARIFFS_LIFESTREAM_SUBSCRIPTIONS
 
 
 logger = logging.getLogger(__name__)

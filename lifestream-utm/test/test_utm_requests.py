@@ -1,10 +1,10 @@
 import pytest
 import psycopg2
 
-from private_settings import DATEBASE
-from utm_requests import fetch_parameter_id_lifestream_from_utm
-from utm_requests import get_status_tv_users_utm
-from utm_requests import UserStatus
+from settings.private_settings import DATEBASE
+from lifestream_utm.utm_requests import fetch_parameter_id_lifestream_from_utm
+from lifestream_utm.utm_requests import get_status_tv_users_utm
+from lifestream_utm.utm_requests import UserStatus
 
 
 @pytest.fixture(scope='module')

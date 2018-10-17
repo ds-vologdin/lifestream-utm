@@ -1,15 +1,15 @@
 import logging
 import argparse
 
-from lifestream_requests import get_status_tv_users_lifestream
-from lifestream_requests import apply_change_status_lifestream
+from lifestream_utm.lifestream_requests import get_status_tv_users_lifestream
+from lifestream_utm.lifestream_requests import apply_change_status_lifestream
 
-from utm_requests import get_status_tv_users_utm
+from lifestream_utm.utm_requests import get_status_tv_users_utm
 
-from relation_utm_lifestream import check_relations_utm_lifestream
-from relation_utm_lifestream import find_change_status_to_lifestream
+from lifestream_utm.relation_utm_lifestream import check_relations_utm_lifestream
+from lifestream_utm.relation_utm_lifestream import find_change_status_to_lifestream
 
-from send_email import send_report_to_email
+from lifestream_utm.send_email import send_report_to_email
 
 
 logger = logging.getLogger(__file__)

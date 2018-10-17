@@ -1,7 +1,7 @@
 import logging
 from datetime import datetime
 
-from utm_tariffs import UTM_TARIFFS_LIFESTREAM_SUBSCRIPTIONS
+from settings.utm_tariffs import UTM_TARIFFS_LIFESTREAM_SUBSCRIPTIONS
 
 
 logger = logging.getLogger(__name__)

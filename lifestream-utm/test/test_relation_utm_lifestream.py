@@ -1,8 +1,8 @@
 import pytest
 import datetime
 
-import relation_utm_lifestream
-from utm_requests import UserStatus
+from lifestream_utm import relation_utm_lifestream
+from lifestream_utm.utm_requests import UserStatus
 
 
 @pytest.fixture(

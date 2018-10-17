@@ -7,7 +7,7 @@ from email import encoders
 from email.utils import formatdate
 import logging
 
-from private_settings import SMTP_CONFIG
+from settings.private_settings import SMTP_CONFIG
 
 
 logger = logging.getLogger(__name__)

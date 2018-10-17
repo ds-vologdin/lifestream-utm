@@ -1,14 +1,14 @@
 import datetime
 
-from lifestream_requests import get_status_tv_users_lifestream
-from lifestream_requests import get_subscriptions_tv_user_lifestream
-from lifestream_requests import add_subscriptions_user
-from lifestream_requests import remove_subscriptions_user
-from lifestream_requests import apply_change_status_lifestream
+from lifestream_utm.lifestream_requests import get_status_tv_users_lifestream
+from lifestream_utm.lifestream_requests import get_subscriptions_tv_user_lifestream
+from lifestream_utm.lifestream_requests import add_subscriptions_user
+from lifestream_utm.lifestream_requests import remove_subscriptions_user
+from lifestream_utm.lifestream_requests import apply_change_status_lifestream
 
-from utm_requests import UserStatus
+from lifestream_utm.utm_requests import UserStatus
 
-from utm_tariffs import UTM_TARIFFS_LIFESTREAM_SUBSCRIPTIONS
+from settings.utm_tariffs import UTM_TARIFFS_LIFESTREAM_SUBSCRIPTIONS
 
 ID_TEST_USER = '567bc88ce2a6fe09ce0008d3'
 

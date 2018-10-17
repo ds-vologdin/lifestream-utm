@@ -1,12 +1,12 @@
 import logging
 import psycopg2
 
-from utm_requests import fetch_parameter_id_lifestream_from_utm
-from utm_requests import insert_parameter_id_lifestream_into_utm
-from utm_requests import update_parameter_id_lifestream_into_utm
-from relation_utm_lifestream import find_users_in_utm
+from .utm_requests import fetch_parameter_id_lifestream_from_utm
+from .utm_requests import insert_parameter_id_lifestream_into_utm
+from .utm_requests import update_parameter_id_lifestream_into_utm
+from .relation_utm_lifestream import find_users_in_utm
 
-from private_settings import DATEBASE
+from settings.private_settings import DATEBASE
 
 
 logger = logging.getLogger(__name__)
