@@ -1,6 +1,7 @@
 import psycopg2
 import logging
 from collections import namedtuple
+from typing import List, Tuple, Union
 
 from settings.private_settings import DATEBASE
 from settings.utm_tariffs import UTM_TARIFFS_LIFESTREAM_SUBSCRIPTIONS
@@ -16,11 +17,12 @@ UserStatus = namedtuple(
 )
 
 
-def get_status_tv_users_utm():
+def get_status_tv_users_utm() -> List[UserStatus]:
     con = psycopg2.connect(**DATEBASE)
     cur = con.cursor()
 
-    tariff_ids = tuple(UTM_TARIFFS_LIFESTREAM_SUBSCRIPTIONS.keys())
+    tariff_ids = tuple(
+        UTM_TARIFFS_LIFESTREAM_SUBSCRIPTIONS.keys())  # type: Tuple[int, ...]
     sql = '''SELECT DISTINCT t5.login, t5.full_name, t1.balance, t2.block_type,
     t2.start_date, t2.expire_date, t2.is_deleted, t5.id, t9.value,
     array(
@@ -47,37 +49,39 @@ def get_status_tv_users_utm():
     LEFT JOIN tariffs_services_link t7 ON t6.service_id = t7.service_id
     LEFT JOIN tariffs t8 ON t8.id = t7.tariff_id
     LEFT JOIN user_additional_params t9 ON t9.userid = t5.id AND t9.paramid = 3
-    WHERE t7.tariff_id IN %s AND t9.value <> '';'''
+    WHERE t7.tariff_id IN %s AND t9.value <> '';'''  # type: str
     cur.execute(sql, (tariff_ids,))
     logger.debug(cur.query)
-    users_status = cur.fetchall()
+    users_status = cur.fetchall()  # type: List[tuple]
     cur.close()
     con.close()
     return list(map(UserStatus._make, users_status))
 
 
-def fetch_parameter_id_lifestream_from_utm(cur, utm_userid):
+def fetch_parameter_id_lifestream_from_utm(
+        cur, utm_userid: int) -> Union[List[tuple], None]:
     # paramid = 3 - параметр c информацией об id lifestream
     sql = '''SELECT value, id FROM user_additional_params
         WHERE userid = %s AND paramid = 3;
-    '''
+    '''  # type: str
     cur.execute(sql, (utm_userid, ))
     logger.debug(cur.query)
     return cur.fetchone()
 
 
-def update_parameter_id_lifestream_into_utm(cur, utm_userid, id_lifestream):
-    sql = '''UPDATE user_additional_params SET value=%s WHERE id = %s;'''
+def update_parameter_id_lifestream_into_utm(
+        cur, utm_userid: int, id_lifestream: str) -> None:
+    sql = 'UPDATE user_additional_params SET value=%s WHERE id = %s;'  # type: str
     cur.execute(sql, (id_lifestream, utm_userid))
     logger.info(cur.query)
 
 
 def insert_parameter_id_lifestream_into_utm(
-    cur, utm_parameter_id, id_lifestream
-):
+        cur, utm_parameter_id: int, id_lifestream: str
+) -> None:
     # paramid = 3 - параметр c информацией об id lifestream
     sql = '''INSERT INTO user_additional_params(
         paramid, userid, value)
-        VALUES (3, %s, %s);'''
+        VALUES (3, %s, %s);'''  # type: str
     cur.execute(sql, (utm_parameter_id, id_lifestream))
     logger.info(cur.query)

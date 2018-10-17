@@ -1,3 +1,6 @@
+from typing import Dict
+
+
 UTM_TARIFFS_LIFESTREAM_SUBSCRIPTIONS = {
     1515: '104',
     1516: '110',
@@ -9,4 +12,4 @@ UTM_TARIFFS_LIFESTREAM_SUBSCRIPTIONS = {
     1716: '5002',
     1717: '5003',
     1725: '1003',
-}
+}  # type: Dict[int, str]
